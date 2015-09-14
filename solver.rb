@@ -33,14 +33,14 @@ class Function
   def eps ;@eps ;end
 
   def set_vars(t, rh, mrt, va)
-    @t = t
-    @rh = rh
-    @mrt = mrt
-    @va = va
+    @t = BigDecimal.new(t.to_f.to_s)
+    @rh = BigDecimal.new(rh.to_f.to_s)
+    @mrt = BigDecimal.new(mrt.to_f.to_s)
+    @va = BigDecimal.new(va.to_f.to_s)
   end
 
   def values(x) # <= defines functions solved  
-    f = [RG::Comfort.utci(x[0], @rh / 100.0, x[0], @va) - 26.0]    
+    f = [RG::Comfort.utci(x[0], @rh / 100.0, @mrt, @va) - 26.0]    
     f
   end
 end
@@ -70,11 +70,12 @@ class Function2
     @t = BigDecimal.new(t.to_f.to_s)
     @rh = BigDecimal.new(rh.to_f.to_s)
     @mrt = BigDecimal.new(mrt.to_f.to_s)
-    @va = BigDecimal.new(va.to_f.to_s)  end
+    @va = BigDecimal.new(va.to_f.to_s)
+  end
 
   def values(x) # <= defines functions solved
     f = []  
-    f2 = RG::Comfort.utci(@t, x[0] / 100.0, @t, @va) - 26.0
+    f2 = RG::Comfort.utci(@t, x[0] / 100.0, @mrt, @va) - 26.0
     f <<= f2
   end
 end

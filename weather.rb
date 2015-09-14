@@ -1,6 +1,7 @@
 require 'time'
 require 'r/utils.rb'
-  
+require 'r/radiation.rb'
+
 module RG::Weather
 
   #Provide basic functionalities to deal with EPW weather files
@@ -56,7 +57,7 @@ module RG::Weather
 				(2..8).each{f.readline}
 				until f.eof?
 					row = f.readline.chomp.split(',')
-					year, month, day, hour = row[0],row[1],row[2],row[3]
+					year, month, day, hour = '2010', row[1], row[2], row[3]
 					time = Time.utc(year, month, day, hour) # Year, month, day_of_month, hour_of_day (0..23)
 					doy = time.yday
 					altitude, azimuth = RG::Utils::alt_az(doy * 1.0, hour.to_f, 0.0, 0.0, @timezone, @latitude, @longitude)
@@ -87,6 +88,13 @@ module RG::Weather
         #d["wind_direction"] = d["wind_direction"].to_f
         d["wind_rose"] = RG::Weather.wind_rose(d["wind_direction"])
         d["sun_vector"] = RG::Weather.sun_vector_from_time(d['year'], d['month'], d['day'], d['hour'], 0, 0, @timezone)
+  			d["fp"] = RG::Radiation.fp(d["altitude"].degrees)
+  			d["person_rad_direct_normal"] = d["fp"] * d["rad_direct_normal"]  			
+  			tmrt4_shortwave = $PERSON_EMISSIVITY_SHORT_WAVE / ($SIGMA * $PERSON_EMISSIVITY_LONG_WAVE) * d["person_rad_direct_normal"] + \
+  			                  $PERSON_EMISSIVITY_SHORT_WAVE / $SIGMA * d["rad_diffuse_horizontal"]
+        tmrt4_longwave =  1.0 * 1.0 * (273.15 + d["dry_bulb_temperature"])**4 # Assume ALL surroundings, sky, ground at ambient temperature and that's why the view factor is 1
+        tmrt4 = tmrt4_shortwave + tmrt4_longwave
+        d["mean_radiant_temperature"] =  tmrt4**(0.25) - 273.15
   			d["vp"] = d["relative_humidity"] / 100.0 * 6.105 * Math.exp(17.27 * d["dry_bulb_temperature"] / (237.7 + d["dry_bulb_temperature"])) #Vp in hPa => e = rh / 100 × 6.105 × exp ( 17.27 × Ta / ( 237.7 + Ta ) )
   			d["atmospheric_longwave"] = $SIGMA * (273.15 + d["dry_bulb_temperature"])**4 * (0.82 - 0.25 * 10**(-0.0945 * d["vp"])) * (1.0 + 0.21 * (d["sky_cover_total"] / 10.0)**2.5) #Atmospheric long wave radiation. This replaces the sky temperature and it is always present. This is for the whole skydomne. It will have to be scaled to the solid angle. This is divided by 10 because the data from epw files are based on 10
   			d["ground_temperature"] = d["dry_bulb_temperature"] #In first approximation we assume the ground surface temperature is equal to ambient temperature
