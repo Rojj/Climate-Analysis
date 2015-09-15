@@ -2,8 +2,8 @@ require 'r/comfort.rb'
 require 'r/mesh.rb'
 require 'r/weather.rb'
 require 'RG/climate/solver.rb'
-#weather = RG::Weather::EPW.new(:file => '/Users/ruggiero/Library/Application Support/RadCalc/Weather/NZL_Auckland_Auckland_AK_931190_NIWA.epw')
-weather = RG::Weather::EPW.new(:file => '/Users/ruggiero/Library/Application Support/RadCalc/Weather/MANIhour.epw')
+weather = RG::Weather::EPW.new(:file => '/Users/ruggiero/Library/Application Support/RadCalc/Weather/NZL_Auckland_Auckland_AK_931190_NIWA.epw')
+#weather = RG::Weather::EPW.new(:file => '/Users/ruggiero/Library/Application Support/RadCalc/Weather/MANIhour.epw')
 #weather = RG::Weather::EPW.new({})
 temp = weather.data.map{|d| d["dry_bulb_temperature"]}
 mean_radiant = weather.data.map{|d| d["mean_radiant_temperature"]}
