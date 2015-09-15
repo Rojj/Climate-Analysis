@@ -105,6 +105,16 @@ module RG::Weather
   	  end
       #RG::Utils.log_msg(log, 'Weather data calculated')
   	end
+    
+    def to_csv(filename)
+      File.open(filename, "w") do |f|
+        f.puts @data[0].keys.join(',')
+        @data.each do |d|
+          f.puts d.values.map{|v| v.to_s}.join(",")
+        end
+      end
+    end
+    
   end
 
   def self.su_time(year, month, day, hour, minute, second, timezone)
